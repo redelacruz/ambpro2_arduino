@@ -15,7 +15,10 @@ public:
     WiFiClient(tBlockingMode blockMode);
     WiFiClient(uint8_t sock, tProtMode portMode);
     WiFiClient(uint8_t sock, tProtMode portMode, tBlockingMode blockMode);
+
     ~WiFiClient();
+    WiFiClient(const WiFiClient &other);
+    WiFiClient& operator=(const WiFiClient &other);
 
     uint8_t status();
     virtual uint8_t connected();
@@ -45,6 +48,7 @@ public:
     using Print::write;
 
 private:
+    mutable bool _is_assigning = false;
     uint8_t _sock;
     ServerDrv clientdrv;
     bool _is_connected;

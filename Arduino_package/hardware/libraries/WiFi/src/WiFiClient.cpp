@@ -66,6 +66,44 @@ WiFiClient::WiFiClient(uint8_t sock, tProtMode portMode, tBlockingMode blockMode
     _is_blocked = blockMode;
 }
 
+WiFiClient::~WiFiClient()
+{
+    if (!_is_assigning) { // Only call stop() if not in the middle of copying
+        stop();
+    }
+    _is_assigning = false;
+}
+
+
+WiFiClient::WiFiClient(const WiFiClient &other):
+    _is_assigning(false),
+    _sock(other._sock),
+    _is_connected(other._is_connected),
+    recvTimeout(other.recvTimeout),
+    _portMode(other._portMode),
+    _is_blocked(other._is_blocked)
+{
+    memcpy(data, other.data, DATA_LENTH);
+    clientdrv = other.clientdrv;
+}
+
+WiFiClient& WiFiClient::operator=(const WiFiClient &other) {
+    if (this == &other) {
+        return *this;
+    }
+
+    other._is_assigning = true;
+
+    _sock = other._sock;
+    clientdrv = other.clientdrv;
+    _is_connected = other._is_connected;
+    recvTimeout = other.recvTimeout;
+    _portMode = other._portMode;
+    _is_blocked = other._is_blocked;
+
+    memcpy(data, other.data, DATA_LENTH);
+}
+
 uint8_t WiFiClient::connected()
 {
     if ((_sock < 0) || (_sock == 0xFF)) {
